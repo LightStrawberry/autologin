@@ -58,11 +58,18 @@ else
     echo '    stty rows $rows columns $cols < $spawn_out(slave,name)' >> $TMP_FILE
     echo '} WINCH' >> $TMP_FILE
     echo "spawn ssh -p$PORT -l "$NAME $IP >> $TMP_FILE
+    echo 'expect {' >> $TMP_FILE
+    echo '    "(yes/no)?" {' >> $TMP_FILE
+    echo '        send yes\r' >> $TMP_FILE
+    echo '        exp_continue' >> $TMP_FILE
+    echo '    }' >> $TMP_FILE
     if [ "$PASS" != "" ]; then
-	    echo 'expect "password:"' >> $TMP_FILE
-	    echo 'send   '$PASS"\r" >> $TMP_FILE
+	    echo '    "password:" {' >> $TMP_FILE
+	    echo '        send   '$PASS"\r" >> $TMP_FILE
+        echo '        interact' >> $TMP_FILE
+        echo '    }' >> $TMP_FILE
     fi
-    echo 'interact' >> $TMP_FILE
+    echo '}' >> $TMP_FILE
     chmod a+x $TMP_FILE
     $TMP_FILE
     echo '' > $TMP_FILE
